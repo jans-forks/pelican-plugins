@@ -11,6 +11,7 @@ from pelican import signals
 from pelican.generators import ArticlesGenerator, StaticGenerator, PagesGenerator
 import re
 
+
 def initialized(pelican):
     from pelican.settings import DEFAULT_CONFIG
     DEFAULT_CONFIG.setdefault('SUMMARY_BEGIN_MARKER',
@@ -25,6 +26,7 @@ def initialized(pelican):
                                     '<!-- PELICAN_END_SUMMARY -->')
         pelican.settings.setdefault('SUMMARY_USE_FIRST_PARAGRAPH', False)
 
+
 def extract_summary(instance):
     # if summary is already specified, use it
     # if there is no content, there's nothing to do
@@ -32,15 +34,15 @@ def extract_summary(instance):
         instance.has_summary = True
         return
 
-    if not instance._content:
+    # do not process pages
+    if not instance._content or instance.template == 'page':
         instance.has_summary = False
         return
 
     begin_marker = instance.settings['SUMMARY_BEGIN_MARKER']
-    end_marker   = instance.settings['SUMMARY_END_MARKER']
+    end_marker = instance.settings['SUMMARY_END_MARKER']
     use_first_paragraph = instance.settings['SUMMARY_USE_FIRST_PARAGRAPH']
     remove_markers = True
-
     content = instance._update_content(instance._content, instance.settings['SITEURL'])
     begin_summary = -1
     end_summary = -1
@@ -79,7 +81,6 @@ def extract_summary(instance):
 
     summary = re.sub(r"<div.*>", "", summary)
     summary = re.sub(r"</div>", "", summary)
-
     instance._content = content
     # default_status was added to Pelican Content objects after 3.7.1.
     # Its use here is strictly to decide on how to set the summary.
